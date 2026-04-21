@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from 'vue'
-import { computed, provide, toRef } from 'vue'
+import { computed } from 'vue'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -18,9 +18,6 @@ const props = withDefaults(defineProps<Props>(), {
   columns: 2,
   gap: 'md',
 })
-
-/** 供 FilterField 計算 col-span，與本區塊 grid 欄數對齊 */
-provide('filterAreaColumns', toRef(props, 'columns'))
 
 const gridClass = computed(() => {
   const cols = {
