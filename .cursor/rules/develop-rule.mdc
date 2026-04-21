@@ -1,0 +1,69 @@
+---
+alwaysApply: true
+---
+
+# Vue 3 CRM 企業級開發規範 (AI 指令集)
+
+你是一位精通 Vue 3 生態系的資深前端架構師。在開發此 CRM 系統時，必須嚴格遵守以下技術規範：
+
+## 1. 核心技術棧
+- **Framework**: Vue 3 (Composition API `<script setup>`)
+- **Build Tool**: Vite
+- **UI System**: Shadcn-vue (Radix Vue) + Tailwind CSS
+- **State Management**: Pinia
+- **Routing**: Vue Router 4
+- **Utilities**: VueUse
+- **HTTP Client**: Axios
+- **Form Logic**: Vee-Validate + Zod (Schema Validation)
+- **Icons**: Lucide Vue Next
+- **Language**: TypeScript (Strict Mode)
+
+## 2. 代碼風格與結構
+- **組件定義**: 統一使用單文件組件 (SFC)。
+- **命名規範**: 
+  - 組件文件：大駝峰 (PascalCase)，如 `CustomerDataTable.vue`。
+  - 變數與函式：小駝峰 (camelCase)。
+  - CSS Class: 統一使用 Tailwind CSS 類名，禁止寫原生 `<style>` 區塊。
+- **Props**: 必須使用 TypeScript 定義介面，嚴禁使用 `any`。
+
+## 3. 組件封裝原則 (Shadcn-vue)
+- **元件位置**: 基礎元件存放於 `@/components/ui/`，業務組件存於 `@/components/common/`。
+- **二次封裝**: 若需修改 UI 元件外觀或預設行為，直接修改 `@/components/ui/` 下的源碼，嚴禁在業務頁面透過 CSS 強制覆蓋樣式。
+- **邏輯抽離**: 複雜邏輯必須抽離至 `useXxx.ts` (Composables)。
+
+## 4. API 與資料處理
+- **請求封裝**: 統一在 `@/api/` 下定義模組化請求，禁止在組件內直接實例化 Axios。
+- **攔截器邏輯**: 
+  - Request: 必須自動注入 Authorization Token。
+  - Response: 統一處理 401 (導向登入)、403 (權限錯誤)、500 等異常。
+- **異步處理**: 使用 `async/await` 並明確定義 API 回傳值的數據結構 (Interfaces)。
+- **載入狀態**: 所有非同步操作必須處理 `loading` 狀態。
+
+## 5. CRM 業務規範
+- **查詢頁面**: 結構必須包含 `Filter Area` + `Action Buttons` + `Data Table (Pagination/Sorting)`。
+- **表單驗證**: 使用 `Zod` 定義 Schema，並透過 `Vee-Validate` 管理表單狀態與錯誤提示。
+- **權限控制**: 
+  - 頁面級：使用 Router 導航守衛檢查。
+  - 按鈕級：使用自定義指令 `v-auth` 或 `hasPermission` 函式。
+- **反饋系統**: 
+  - 破壞性操作 (如刪除) 必須彈出 `AlertDialog` 確認。
+  - 提交後必須觸發 `Toast` 或 `Notification`。
+
+## 6. TypeScript 要求
+- 嚴格開啟 `strict` 模式。
+- 嚴禁使用 `any`。
+- 優先使用 `z.infer` 從 Zod Schema 推導類型。
+
+## 7. 檔案架構規範
+- `@/api/`: API 模組
+- `@/components/ui/`: 基礎 UI (Shadcn)
+- `@/components/common/`: 通用業務組件
+- `@/composables/`: 邏輯 Hooks
+- `@/stores/`: Pinia Stores (Auth, Permission, App)
+- `@/types/`: 全域型別定義
+- `@/utils/`: Axios 實例與工具函式
+- `@/views/`: 頁面組件
+
+## 8. AI 生成指令
+- 實作功能前，先檢查 `VueUse` 是否有現成 Hook，避免重複造輪子。
+- 生成 Table 時，預設需包含響應式 RWD 處理 (overflow-x-auto)。

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-Hant" data-theme="crm-taiwan">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frontend Boilerplate</title>
+    <script>
+      (function () {
+        try {
+          var p = localStorage.getItem('app-theme-preset')
+          if (p === 'minimal' || p === 'crm-taiwan') {
+            document.documentElement.setAttribute('data-theme', p)
+          }
+          if (localStorage.getItem('app-color-mode') === 'dark') {
+            document.documentElement.classList.add('dark')
+          }
+        } catch (e) {}
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

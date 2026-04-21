@@ -1,0 +1,49 @@
+---
+description: 
+alwaysApply: true
+---
+
+# 核心價值
+- 新專案第一時間會想要拿這個模板來開發
+- 解決 80% 後台問題，不用全部，特例留給專案
+
+# 基礎UI框架
+- 基本 RWD，桌機為主、手機可操作即可
+- 採用成熟 UI Framework
+- 提供標準 Layout（Header / Sidebar / Breadcrumb / Content）
+- 提供 Login、404、403、500 頁面
+
+# API 與登入權限
+- API request / response 統一封裝
+- Token 與登入資訊管理
+- 401 / 403 / 500 / timeout / Retry 統一處理
+- 頁面、選單、按鈕權限控制
+- 串接既有後端模板 API
+
+# 常用後台操作元件
+- Dialog / Confirm / Alert
+- Toast / Notification
+- Loading
+- Form Validation
+- 檔案上傳 / 下載
+- 查詢條件區
+- 表格、分頁、排序、篩選
+
+# Demo 頁面
+- 列表頁（查詢 / 分頁 / 排序）
+- 新增頁
+- 編輯頁
+- 詳細頁
+- 刪除確認流程
+- 上傳頁
+
+#權限控制示範頁
+- 與後端模板API 串接的權限頁面
+
+# 專案規範
+- 資料夾結構規範
+- API / types / utils / components 分層原則
+- 命名規範
+- env 設定方式
+- README 與啟動方式
+- 打包部署範例 (edited)
