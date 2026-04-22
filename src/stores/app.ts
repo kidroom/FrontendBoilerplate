@@ -6,12 +6,12 @@ function isDesktopViewport(): boolean {
 }
 
 export const useAppStore = defineStore('app', () => {
-  /** 目前側欄 UI：手機抽屜／桌機寬度展開 */
-  const sidebarOpen = ref(true)
   /**
-   * 僅記錄「桌機寬度」下的開合偏好。
-   * 縮小到手機時會先把當前桌機狀態存進此值，再關閉抽屜；放大回桌機時由此還原。
+   * 手機：抽屜是否開啟。
+   * 桌機：`true` 為完整寬側欄，`false` 為圖示窄欄（Sakai static-inactive 風格）。
    */
+  const sidebarOpen = ref(true)
+  /** 僅記錄桌機寬度下的側欄展開／窄欄偏好；進出手機版面時與 `sidebarOpen` 同步還原 */
   const desktopSidebarOpen = ref(true)
   const pageLoading = ref(false)
 
