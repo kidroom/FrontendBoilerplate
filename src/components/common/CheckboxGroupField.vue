@@ -4,10 +4,15 @@ import { cn } from '@/lib/utils'
 import type { FormOption } from '@/types/form-options'
 
 interface Props {
+  /** 選項列表 */
   options: FormOption<T>[]
+  /** 已選擇的項目或預設選擇項目 */
   modelValue: T[]
+  /** 是否禁用 */
   disabled?: boolean
+  /** 排列方向 */
   orientation?: 'horizontal' | 'vertical'
+  /** 外層容器 class */
   class?: HTMLAttributes['class']
 }
 

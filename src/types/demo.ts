@@ -11,6 +11,7 @@ export interface DemoListQuery {
   pageSize: number
   sortField: 'name' | 'updatedAt'
   sortOrder: 'asc' | 'desc'
+  statuses: Array<'active' | 'draft'>
 }
 
 export interface DemoPermissionItem {

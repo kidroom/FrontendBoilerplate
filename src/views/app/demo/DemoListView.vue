@@ -13,9 +13,10 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { FilterArea, FilterField, QueryResultSection } from '@/components/common'
+import { CheckboxGroupField, FilterArea, FilterField, QueryResultSection } from '@/components/common'
 import { deleteDemoItem, fetchDemoList } from '@/api/demo'
 import type { DemoItem } from '@/types/demo'
+import type { FormOption } from '@/types/form-options'
 import type { QueryResultColumnDef } from '@/types/query-result-table'
 import { useAppStore } from '@/stores/app'
 import { toast } from '@/composables/useToast'
@@ -26,6 +27,11 @@ const router = useRouter()
 const app = useAppStore()
 
 const q = ref('')
+const statusFilter = ref<Array<'active' | 'draft'>>(['active', 'draft'])
+const statusOptions: FormOption<'active' | 'draft'>[] = [
+  { label: '啟用', value: 'active' },
+  { label: '草稿', value: 'draft' },
+]
 const page = ref(1)
 const pageSize = ref(5)
 const sortField = ref<'name' | 'updatedAt'>('updatedAt')
@@ -90,6 +96,7 @@ async function load() {
       pageSize: pageSize.value,
       sortField: sortField.value,
       sortOrder: sortOrder.value,
+      statuses: statusFilter.value,
     })
     items.value = res.items
     total.value = res.total
@@ -165,6 +172,9 @@ async function confirmDelete() {
     <FilterArea class="mb-4" title="查詢條件" :columns="2">
       <FilterField for-id="demo-q" label="關鍵字（名稱）" layout="stack" field-class="sm:max-w-xs" :columns="2">
         <Input id="demo-q" v-model="q" placeholder="輸入關鍵字" @keyup.enter="onSearch" />
+      </FilterField>
+      <FilterField label="狀態" layout="stack" :columns="2">
+        <CheckboxGroupField v-model="statusFilter" :options="statusOptions" />
       </FilterField>
       <div class="flex flex-wrap items-end gap-2">
         <Button type="button" @click="onSearch">查詢</Button>

@@ -5,18 +5,18 @@ import type { DemoItem, DemoListQuery } from '@/types/demo'
 const MOCK_DB: DemoItem[] = [
   { id: '1', name: '範例項目 A', status: 'active', updatedAt: '2026-04-01T10:00:00.000Z' },
   { id: '2', name: '範例項目 B', status: 'draft', updatedAt: '2026-04-02T14:30:00.000Z' },
-  { id: '3', name: '範例項目 C', status: 'active', updatedAt: '2026-04-03T09:15:00.000Z' },
+  { id: '3', name: '範例項目 C', status: 'draft', updatedAt: '2026-04-03T09:15:00.000Z' },
   { id: '4', name: '範例項目 D', status: 'active', updatedAt: '2026-04-03T09:15:00.000Z' },
-  { id: '5', name: '範例項目 E', status: 'active', updatedAt: '2026-04-03T09:15:00.000Z' },
+  { id: '5', name: '範例項目 E', status: 'draft', updatedAt: '2026-04-03T09:15:00.000Z' },
   { id: '6', name: '範例項目 F', status: 'active', updatedAt: '2026-04-03T09:15:00.000Z' },
-  { id: '7', name: '範例項目 G', status: 'active', updatedAt: '2026-04-03T09:15:00.000Z' },
+  { id: '7', name: '範例項目 G', status: 'draft', updatedAt: '2026-04-03T09:15:00.000Z' },
   { id: '8', name: '範例項目 H', status: 'active', updatedAt: '2026-04-03T09:15:00.000Z' },
-  { id: '9', name: '範例項目 I', status: 'active', updatedAt: '2026-04-03T09:15:00.000Z' },
+  { id: '9', name: '範例項目 I', status: 'draft', updatedAt: '2026-04-03T09:15:00.000Z' },
   { id: '10', name: '範例項目 J', status: 'active', updatedAt: '2026-04-03T09:15:00.000Z' },
-  { id: '11', name: '範例項目 K', status: 'active', updatedAt: '2026-04-03T09:15:00.000Z' },
-  { id: '12', name: '範例項目 L', status: 'active', updatedAt: '2026-04-03T09:15:00.000Z' },
-  { id: '14', name: '範例項目 M', status: 'active', updatedAt: '2026-04-03T09:15:00.000Z' },
-  { id: '15', name: '範例項目 N', status: 'active', updatedAt: '2026-04-03T09:15:00.000Z' },
+  { id: '11', name: '範例項目 K', status: 'draft', updatedAt: '2026-04-03T09:15:00.000Z' },
+  { id: '12', name: '範例項目 L', status: 'draft', updatedAt: '2026-04-03T09:15:00.000Z' },
+  { id: '13', name: '範例項目 M', status: 'active', updatedAt: '2026-04-03T09:15:00.000Z' },
+  { id: '14', name: '範例項目 N', status: 'active', updatedAt: '2026-04-03T09:15:00.000Z' },
 ]
 
 function delay(ms: number): Promise<void> {
@@ -29,6 +29,9 @@ export async function fetchDemoList(query: DemoListQuery): Promise<ApiListRespon
   const q = query.q.trim().toLowerCase()
   if (q) {
     list = list.filter((row) => row.name.toLowerCase().includes(q))
+  }
+  if (query.statuses.length > 0) {
+    list = list.filter((row) => query.statuses.includes(row.status))
   }
   const mult = query.sortOrder === 'asc' ? 1 : -1
   list.sort((a, b) => {
