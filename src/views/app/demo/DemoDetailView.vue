@@ -4,22 +4,14 @@ import { useRoute, useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { fetchDemoById } from '@/api/demo'
 import type { DemoItem } from '@/types/demo'
-import { useAppStore } from '@/stores/app'
-
 const route = useRoute()
 const router = useRouter()
-const app = useAppStore()
 
 const row = ref<DemoItem | null>(null)
 
 async function load() {
   const id = route.params.id as string
-  app.setPageLoading(true)
-  try {
-    row.value = await fetchDemoById(id)
-  } finally {
-    app.setPageLoading(false)
-  }
+  row.value = await fetchDemoById(id)
 }
 
 onMounted(() => {

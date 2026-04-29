@@ -13,7 +13,6 @@ export const useAppStore = defineStore('app', () => {
   const sidebarOpen = ref(true)
   /** 僅記錄桌機寬度下的側欄展開／窄欄偏好；進出手機版面時與 `sidebarOpen` 同步還原 */
   const desktopSidebarOpen = ref(true)
-  const pageLoading = ref(false)
 
   function toggleSidebar() {
     sidebarOpen.value = !sidebarOpen.value
@@ -45,19 +44,13 @@ export const useAppStore = defineStore('app', () => {
     sidebarOpen.value = false
   }
 
-  function setPageLoading(value: boolean) {
-    pageLoading.value = value
-  }
-
   return {
     sidebarOpen,
     desktopSidebarOpen,
-    pageLoading,
     toggleSidebar,
     closeSidebar,
     setSidebarOpen,
     restoreSidebarForDesktopLayout,
     collapseSidebarForMobileLayout,
-    setPageLoading,
   }
 })

@@ -18,13 +18,11 @@ import { deleteDemoItem, fetchDemoList } from '@/api/demo'
 import type { DemoItem } from '@/types/demo'
 import type { FormOption } from '@/types/form-options'
 import type { QueryResultColumnDef } from '@/types/query-result-table'
-import { useAppStore } from '@/stores/app'
 import { toast } from '@/composables/useToast'
 
 type DemoRow = DemoItem & Record<string, unknown>
 
 const router = useRouter()
-const app = useAppStore()
 
 const q = ref('')
 const statusFilter = ref<Array<'active' | 'draft'>>(['active', 'draft'])
@@ -88,21 +86,16 @@ const columns: QueryResultColumnDef<DemoRow>[] = [
 ]
 
 async function load() {
-  app.setPageLoading(true)
-  try {
-    const res = await fetchDemoList({
-      q: q.value,
-      page: page.value,
-      pageSize: pageSize.value,
-      sortField: sortField.value,
-      sortOrder: sortOrder.value,
-      statuses: statusFilter.value,
-    })
-    items.value = res.items
-    total.value = res.total
-  } finally {
-    app.setPageLoading(false)
-  }
+  const res = await fetchDemoList({
+    q: q.value,
+    page: page.value,
+    pageSize: pageSize.value,
+    sortField: sortField.value,
+    sortOrder: sortOrder.value,
+    statuses: statusFilter.value,
+  })
+  items.value = res.items
+  total.value = res.total
 }
 
 onMounted(() => {

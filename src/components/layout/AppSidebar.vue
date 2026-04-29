@@ -1,27 +1,47 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { useMediaQuery } from '@vueuse/core'
 import { XIcon } from 'lucide-vue-next'
-import { APP_NAV_SECTIONS, NAV_ICON_MAP, type NavItem, type NavSection } from '@/constants/navigation'
+import type { RoleFunction } from '@/types/auth'
+import { NAV_ICON_MAP } from '@/constants/navIcons'
+import { buildNavSectionsFromRouter, type NavItem, type NavSection } from '@/utils/sidebarFromRoutes'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/stores/app'
 import { useAuthStore } from '@/stores/auth'
-import { usePermission } from '@/composables/usePermission'
 
 const app = useAppStore()
 const auth = useAuthStore()
-const { hasPermission } = usePermission()
+const router = useRouter()
+
+const navSections = computed(() => buildNavSectionsFromRouter(router))
 
 const isMobileLayout = useMediaQuery('(max-width: 767px)')
 
 /** 桌機收合時為圖示窄欄（Sakai static-inactive 風格） */
 const isRail = computed(() => !isMobileLayout.value && !app.sidebarOpen)
 
+function collectRolePermissionNames(nodes: readonly RoleFunction[]): Set<string> {
+  const names = new Set<string>()
+  function walk(list: readonly RoleFunction[]) {
+    for (const node of list) {
+      if (node.name.length > 0) names.add(node.name)
+      if (node.children.length > 0) walk(node.children)
+    }
+  }
+  walk(nodes)
+  return names
+}
+
+const rolePermissionNames = computed(() => collectRolePermissionNames(auth.roleFunctions))
+
 const visibleSections = computed((): NavSection[] => {
   const out: NavSection[] = []
-  for (const section of APP_NAV_SECTIONS) {
-    const items = section.items.filter((item) => !item.permission || hasPermission(item.permission))
+  for (const section of navSections.value) {
+    // LoginResult.roleFunctions 的 name 對應 route.meta.permission，用於側欄顯示控制
+    const items = section.items.filter(
+      (item) => !item.permission || rolePermissionNames.value.has(item.permission),
+    )
     if (items.length > 0) {
       out.push({ title: section.title, items })
     }
@@ -69,7 +89,7 @@ function iconFor(item: NavItem) {
         S
       </div>
       <div v-if="!isRail" class="min-w-0 flex-1 max-md:block">
-        <p class="truncate text-sm font-semibold tracking-tight">Sakai 風格</p>
+        <p class="truncate text-sm font-semibold tracking-tight">CRM</p>
         <p class="text-sidebar-foreground/70 truncate text-xs">後台版型</p>
       </div>
       <Button
@@ -93,7 +113,7 @@ function iconFor(item: NavItem) {
           {{ section.title }}
         </p>
         <ul class="space-y-0.5">
-          <li v-for="item in section.items" :key="String(item.to)">
+          <li v-for="item in section.items" :key="`${section.title}:${String(item.to.name)}`">
             <RouterLink :to="item.to" custom v-slot="{ href, navigate, isActive }">
               <a
                 :href="href"
@@ -108,7 +128,7 @@ function iconFor(item: NavItem) {
                       ]
                     : 'text-sidebar-foreground/85 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                 ]"
-                @click="onNavigate(navigate)"
+                @click.prevent="onNavigate(navigate)"
               >
                 <component
                   :is="iconFor(item)"

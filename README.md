@@ -6,12 +6,13 @@
 
 ```bash
 npm install
-cp .env.example .env
 npm run dev
 ```
 
 - 開發伺服器預設：`http://localhost:5173`（依 Vite 終端機輸出為準）。
-- API 基底位址：於 `.env` 設定 `VITE_API_BASE_URL`（見 `.env.example`）。
+- **環境變數**：Vite **不會**讀取 `.env.example`（僅範本說明）。專案已提供可版控的 `.env.development` / `.env.production` / `.env.staging`，依 `--mode` 自動載入對應檔案。
+- API 基底位址：變數名 `VITE_API_BASE_URL`；本機密鑰或個人覆寫請放 `.env.local` 或 `.env.development.local`（已列入 `.gitignore`）。
+- **建置指令**：正式 `npm run build`（載入 `.env.production`）；測試／預發佈 `npm run build:staging`（載入 `.env.staging`）。CI／發佈流水線請使用對應指令，或在該步驟注入 `VITE_API_BASE_URL`（會覆寫檔案內預設值）。
 
 ## 資料夾結構（摘要）
 
@@ -33,7 +34,7 @@ npm run dev
 ## 內建頁面
 
 - **首頁** `/`：模板說明與進入後台／登入。
-- **登入** `/login`：模擬登入（寫入 token + 模板權限），可帶 `?redirect=`。
+- **登入** `/login`：呼叫後端登入 API，可帶 `?redirect=`。
 - **後台** `/app`：`AppLayout`（側欄 + 頂欄 + 內容區）。
   - **儀表板** `/app/dashboard`
   - **範例列表**（查詢／分頁／排序／刪除確認）
@@ -42,7 +43,7 @@ npm run dev
   - **權限示範**（`v-auth`、權限列表）
 - **403** `/403`、**500** `/500`、**404** 萬用路由。
 
-路由級權限：於 `src/router/routes.ts` 設定 `meta.permission`，與 `stores/permission` 比對；按鈕級可用 `v-auth="'權限碼'"`。
+路由級權限：於 `src/router/modules/*.routes.ts` 設定 `meta.permission`，與 `stores/permission` 比對；按鈕級可用 `v-auth="'權限碼'"`。新增路由檔會由 `src/router/index.ts` 的 `import.meta.glob` 自動合併。
 
 ## 打包
 
@@ -67,8 +68,9 @@ server {
 
 ## 後續接後端
 
-1. 將 `src/api/example.ts`、`src/api/demo.ts` 改為真實路徑與型別。
-2. 登入改為呼叫後端，於成功回應內設定 `auth.setToken` 與 `permission.setPermissions`。
-3. 依專案調整 `utils/http` 之 401／403／500／timeout／retry 策略。
+1. 依環境調整 `.env.development`、`.env.production`、`.env.staging` 的 `VITE_API_BASE_URL`（或由 CI 注入）。
+2. 將 `src/api/example.ts`、`src/api/demo.ts` 改為真實路徑與型別。
+3. 確認 `src/api/auth.ts` 與後端登入契約一致。
+4. 依專案調整 `utils/http` 之 401／403／500／timeout／retry 策略。
 
-此模板刻意保留可運行之假資料與模擬登入，方便離線開發與 UI 驗收。
+此模板仍保留 Demo 假資料頁面，方便離線開發與 UI 驗收。

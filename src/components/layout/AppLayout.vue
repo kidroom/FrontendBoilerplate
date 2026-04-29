@@ -12,8 +12,8 @@ const app = useAppStore()
 
 const isMobileLayout = useMediaQuery('(max-width: 767px)')
 
-const title = computed(() => (route.meta.title as string | undefined) ?? '')
-const description = computed(() => (route.meta.description as string | undefined) ?? '')
+const title = computed(() => route.meta.title ?? '')
+const description = computed(() => route.meta.description ?? '')
 const breadcrumb = computed(() => route.meta.breadcrumb ?? [])
 
 const showMobileOverlay = computed(() => app.sidebarOpen && isMobileLayout.value)
@@ -66,14 +66,5 @@ watch(
       </main>
     </div>
 
-    <div
-      v-if="app.pageLoading"
-      class="fixed inset-0 z-[90] flex items-center justify-center bg-background/50"
-      role="status"
-      aria-live="polite"
-      aria-busy="true"
-    >
-      <div class="border-primary size-10 animate-spin rounded-full border-2 border-t-transparent" />
-    </div>
   </div>
 </template>

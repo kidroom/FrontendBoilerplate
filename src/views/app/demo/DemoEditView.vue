@@ -9,11 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { fetchDemoById, updateDemoItem } from '@/api/demo'
 import { toast } from '@/composables/useToast'
-import { useAppStore } from '@/stores/app'
-
 const route = useRoute()
 const router = useRouter()
-const app = useAppStore()
 
 const schema = toTypedSchema(
   z.object({
@@ -35,16 +32,11 @@ const [status] = defineField('status')
 
 async function load() {
   const id = route.params.id as string
-  app.setPageLoading(true)
-  try {
-    const row = await fetchDemoById(id)
-    if (row) {
-      resetForm({
-        values: { name: row.name, status: row.status },
-      })
-    }
-  } finally {
-    app.setPageLoading(false)
+  const row = await fetchDemoById(id)
+  if (row) {
+    resetForm({
+      values: { name: row.name, status: row.status },
+    })
   }
 }
 
