@@ -1,23 +1,24 @@
 import { z } from 'zod'
 import { http } from '@/utils/http'
-import type { ApiResult } from '@/types/api'
+import type { ApiError, ApiResult } from '@/types/api'
 import type {
   CreateRoleRequest,
   CreateRoleResponse,
   CreateUserRequest,
   CreateUserResponse,
+  FunctionPermissionInfo,
+  GetRoleFunctionsResponse,
   GetRolesResponse,
   GetUsersRequest,
   GetUsersResponse,
   LoginRequest,
   LoginResult,
   RoleFunction,
+  UpdateRoleFunctionsStatusRequest,
   UpdateRoleRequest,
   UpdateRoleResponse,
   UpdateUserRequest,
   UpdateUserResponse,
-  GetRoleFunctionsResponse,
-  UpdateRoleFunctionsStatusRequest,
 } from '@/types/auth'
 const roleFunctionSchema = z.lazy(() =>
   z.object({
@@ -60,13 +61,23 @@ function parseLoginResponse(data: unknown): LoginResult {
   throw new Error(detail ? `登入回應格式不符：${detail}` : '登入回應格式不符')
 }
 
-/** 與登入相同，部分端點將本文包在 `value` 內 */
+/**
+ * 剝離後端常見的包裝：`{ value: T }` 或 `{ Value: T }`；巢狀至多 8 層。
+ * （僅在 `value`／`Value` 存在且非 `undefined` 時往內一層；`null` 視為有效內容並停止。）
+ */
 function unwrapEnvelope(raw: unknown): unknown {
-  const wrapped = z.object({ value: z.unknown() }).safeParse(raw)
-  if (wrapped.success) {
-    return wrapped.data.value
+  let current = raw
+  for (let depth = 0; depth < 8; depth += 1) {
+    if (current === null || typeof current !== 'object' || Array.isArray(current)) break
+    const rec = current as Record<string, unknown>
+    const hasLower = Object.prototype.hasOwnProperty.call(rec, 'value')
+    const hasPascal = Object.prototype.hasOwnProperty.call(rec, 'Value')
+    const inner = hasLower ? rec.value : hasPascal ? rec.Value : undefined
+    if (!hasLower && !hasPascal) break
+    if (inner === undefined) break
+    current = inner
   }
-  return raw
+  return current
 }
 
 function zodErrorSummary(err: z.ZodError): string {
@@ -248,35 +259,127 @@ function parseUpdateUserResponse(data: unknown): UpdateUserResponse {
   }
 }
 
-const apiResultSchema = z
+function coerceApiErrorString(value: unknown, fallback = ''): string {
+  if (value === undefined || value === null) return fallback
+  const s = String(value).trim()
+  return s.length > 0 ? s : fallback
+}
+
+/** 對齊 {@link ApiResult}；成功時後端常以 null／省略表示 error */
+const apiErrorInnerSchema = z
   .object({
-    isSuccess: z.boolean(),
-    isFailure: z.boolean(),
-    error: z
-      .object({
-        code: z.string(),
-        description: z.string(),
-        message: z.string(),
-        type: z.coerce.number(),
-      })
-      .passthrough(),
+    code: z.union([z.string(), z.number()]).optional(),
+    Code: z.union([z.string(), z.number()]).optional(),
+    description: z.string().optional(),
+    Description: z.string().optional(),
+    message: z.string().optional(),
+    Message: z.string().optional(),
   })
   .passthrough()
-  .transform((row): ApiResult => ({
-    isSuccess: row.isSuccess,
-    isFailure: row.isFailure,
-    error: row.error,
-  }))
+  .transform(
+    (row): ApiError => ({
+      code: coerceApiErrorString(row.code ?? row.Code),
+      description: coerceApiErrorString(row.description ?? row.Description),
+      message: coerceApiErrorString(row.message ?? row.Message),
+    }),
+  )
+
+const emptyApiError: ApiError = {
+  code: '',
+  description: '',
+  message: '',
+}
+
+function parseApiResultPayload(payload: unknown): ApiResult {
+  const rowSchema = z
+    .object({
+      isSuccess: z.coerce.boolean().optional(),
+      isFailure: z.coerce.boolean().optional(),
+      IsSuccess: z.coerce.boolean().optional(),
+      IsFailure: z.coerce.boolean().optional(),
+      error: z.unknown().optional(),
+      Error: z.unknown().optional(),
+    })
+    .passthrough()
+
+  const base = rowSchema.safeParse(payload)
+  if (!base.success) throw base.error
+
+  const row = base.data
+  const isSuccessDeclared = row.isSuccess ?? row.IsSuccess
+  const isFailureDeclared = row.isFailure ?? row.IsFailure
+  const isSuccess =
+    typeof isSuccessDeclared === 'boolean'
+      ? isSuccessDeclared
+      : typeof isFailureDeclared === 'boolean'
+        ? !isFailureDeclared
+        : false
+  const isFailure =
+    typeof isFailureDeclared === 'boolean'
+      ? isFailureDeclared
+      : !isSuccess
+
+  const errorRaw = row.error ?? row.Error
+  let error = emptyApiError
+  if (errorRaw !== null && errorRaw !== undefined) {
+    const errParsed = apiErrorInnerSchema.safeParse(errorRaw)
+    error = errParsed.success ? errParsed.data : emptyApiError
+  }
+
+  return {
+    isSuccess,
+    isFailure,
+    error,
+  }
+}
 
 function parseApiResult(data: unknown): ApiResult {
   try {
-    return apiResultSchema.parse(unwrapEnvelope(data))
+    return parseApiResultPayload(unwrapEnvelope(data))
   } catch (e) {
     if (e instanceof z.ZodError) {
       throw new Error(`API 回應格式不符：${zodErrorSummary(e)}`)
     }
     throw e
   }
+}
+
+const functionPermissionInfoSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    ParentName: z.union([z.string(), z.null()]).optional(),
+    parentName: z.union([z.string(), z.null()]).optional(),
+    isEnabled: z.coerce.boolean().optional(),
+    IsEnabled: z.coerce.boolean().optional(),
+  })
+  .passthrough()
+  .transform(
+    (row): FunctionPermissionInfo => ({
+      id: row.id,
+      name: row.name,
+      parentName: row.parentName ?? row.ParentName ?? null,
+      isEnabled: row.isEnabled ?? row.IsEnabled ?? false,
+    }),
+  )
+
+const getRoleFunctionsResponseSchema = z
+  .object({
+    functions: z.array(functionPermissionInfoSchema).optional(),
+    Functions: z.array(functionPermissionInfoSchema).optional(),
+  })
+  .passthrough()
+  .transform((row): GetRoleFunctionsResponse => ({
+    functions: row.functions ?? row.Functions ?? [],
+  }))
+
+function parseGetRoleFunctionsResponse(data: unknown): GetRoleFunctionsResponse {
+  const payload = unwrapEnvelope(data)
+  const parsed = getRoleFunctionsResponseSchema.safeParse(payload)
+  if (parsed.success) {
+    return parsed.data
+  }
+  throw new Error(`取得角色功能權限格式不符：${zodErrorSummary(parsed.error)}`)
 }
 
 /**
@@ -313,21 +416,25 @@ export async function createRole(payload: CreateRoleRequest): Promise<CreateRole
 }
 
 export async function updateRole(id: string, payload: UpdateRoleRequest): Promise<UpdateRoleResponse> {
-  const { data } = await http.patch<unknown>('/roles/' + id, payload)
-  return parseUpdateRoleResponse(data)
-}
-
-export async function deleteRole(id: string): Promise<ApiResult> {
-  const { data } = await http.delete<unknown>('/roles/' + id)
-  return parseApiResult(data)
-}
-
-export async function getRoleFunctions(id: string): Promise<GetRoleFunctionsResponse> {
-  const { data } = await http.get<GetRoleFunctionsResponse>('/roles/' + id + '/functions')
+  const { data } = await http.patch<UpdateRoleResponse>('/roles/' + id, payload)
+  console.log("data", data)
   return data
 }
 
-export async function updateRoleFunctionsStatus(id: string, payload: UpdateRoleFunctionsStatusRequest): Promise<ApiResult> {
+export async function deleteRole(id: string): Promise<ApiResult> {
+  const { data } = await http.delete<ApiResult>('/roles/' + id)
+  return data
+}
+
+export async function getRoleFunctions(id: string): Promise<GetRoleFunctionsResponse> {
+  const { data } = await http.get<unknown>('/roles/' + id + '/functions')
+  return parseGetRoleFunctionsResponse(data)
+}
+
+export async function updateRoleFunctionsStatus(
+  id: string,
+  payload: UpdateRoleFunctionsStatusRequest,
+): Promise<ApiResult> {
   const { data } = await http.patch<unknown>('/roles/' + id + '/functions/status', payload)
   return parseApiResult(data)
 }
@@ -343,11 +450,11 @@ export async function createUser(payload: CreateUserRequest): Promise<CreateUser
 }
 
 export async function updateUser(id: string, payload: UpdateUserRequest): Promise<UpdateUserResponse> {
-  const { data } = await http.patch<unknown>('/users/' + id, payload)
-  return parseUpdateUserResponse(data)
+  const { data } = await http.patch<UpdateUserResponse>('/users/' + id, payload)
+  return data
 }
 
 export async function deleteUser(id: string): Promise<ApiResult> {
-  const { data } = await http.delete<unknown>('/users/' + id)
-  return parseApiResult(data)
+  const { data } = await http.delete<ApiResult>('/users/' + id)
+  return data
 }

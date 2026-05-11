@@ -60,8 +60,19 @@ const onSubmit = handleSubmit(async (values) => {
 
 <template>
   <div>
+    <p class="text-muted-foreground mb-2 text-sm">
+      對應 API：<code class="font-mono text-xs">PATCH /roles/:id</code>
+    </p>
     <p class="text-muted-foreground mb-6 text-sm">
-      對應 API：<code class="font-mono text-xs">PATCH /users/updateRole/:id</code>
+      <Button
+        v-if="!pageLoading"
+        type="button"
+        variant="link"
+        class="text-muted-foreground h-auto px-0 py-0 text-sm underline"
+        @click="router.push({ name: 'permission-demo-role-functions', params: { id: String(route.params.id ?? '') } })"
+      >
+        設定此角色的功能／選單權限
+      </Button>
     </p>
     <div v-if="pageLoading" class="text-muted-foreground text-sm">載入中…</div>
     <form

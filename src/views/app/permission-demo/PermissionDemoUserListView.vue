@@ -95,7 +95,7 @@ onMounted(() => {
   <div>
     <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
       <p class="text-muted-foreground text-sm">
-        取得：<code class="font-mono text-xs">GET /users/getUsers</code>；刪除：<code class="font-mono text-xs">POST /users/deleteUser/:id</code>
+        取得：<code class="font-mono text-xs">GET /users</code>；刪除：<code class="font-mono text-xs">DELETE /users/:id</code>
       </p>
       <Button type="button" @click="router.push({ name: 'permission-demo-user-create' })">建立使用者</Button>
     </div>

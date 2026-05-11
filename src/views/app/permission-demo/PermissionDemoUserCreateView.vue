@@ -93,7 +93,7 @@ const onSubmit = handleSubmit(async (values) => {
 <template>
   <div>
     <p class="text-muted-foreground mb-6 text-sm">
-      對應 API：<code class="font-mono text-xs">POST /users/createUser</code>（顯示名稱對應欄位 <code class="font-mono text-xs">name</code>）。
+      對應 API：<code class="font-mono text-xs">POST /users</code>（顯示名稱對應欄位 <code class="font-mono text-xs">name</code>）。
     </p>
     <form class="border-border bg-card max-w-lg space-y-4 rounded-lg border p-6" @submit.prevent="onSubmit">
       <div class="grid gap-2">

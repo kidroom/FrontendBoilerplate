@@ -32,7 +32,7 @@ function submit() {
         />
         <p v-if="fileName" class="text-muted-foreground text-sm">已選：{{ fileName }}</p>
       </div>
-      <Button type="button" @click="submit">送出（示範）</Button>
+      <Button type="button" @click="submit">送出</Button>
     </div>
   </div>
 </template>

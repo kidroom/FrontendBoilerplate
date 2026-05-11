@@ -9,7 +9,8 @@ const links = computed(() => {
   const rolesActive =
     n === 'permission-demo-roles' ||
     n === 'permission-demo-role-create' ||
-    n === 'permission-demo-role-edit'
+    n === 'permission-demo-role-edit' ||
+    n === 'permission-demo-role-functions'
   const usersActive =
     n === 'permission-demo-users' ||
     n === 'permission-demo-user-create' ||

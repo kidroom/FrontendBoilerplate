@@ -68,13 +68,13 @@ onMounted(() => {
   <div>
     <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
       <p class="text-muted-foreground text-sm">
-        取得：<code class="font-mono text-xs">GET /roles/getRoles</code>；刪除：<code class="font-mono text-xs">POST /users/deleteRole/:id</code>
+        取得：<code class="font-mono text-xs">GET /roles</code>；刪除：<code class="font-mono text-xs">DELETE /roles/:id</code>
       </p>
       <Button type="button" @click="router.push({ name: 'permission-demo-role-create' })">建立角色</Button>
     </div>
 
     <div class="border-border bg-card overflow-x-auto rounded-lg border">
-      <table class="divide-border text-foreground w-full min-w-[560px] table-fixed divide-y text-sm">
+      <table class="divide-border text-foreground w-full min-w-[640px] table-fixed divide-y text-sm">
         <thead>
           <tr class="[&_th]:align-middle">
             <th class="text-foreground px-4 py-3 text-left font-medium">角色名稱</th>
@@ -101,6 +101,14 @@ onMounted(() => {
                   @click="router.push({ name: 'permission-demo-role-edit', params: { id: row.id } })"
                 >
                   編輯
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  @click="router.push({ name: 'permission-demo-role-functions', params: { id: row.id } })"
+                >
+                  功能權限
                 </Button>
                 <Button type="button" variant="destructive" size="sm" @click="openDelete(row.id)">刪除</Button>
               </div>

@@ -84,7 +84,7 @@ const onSubmit = handleSubmit(async (values) => {
 <template>
   <div>
     <p class="text-muted-foreground mb-6 text-sm">
-      對應 API：<code class="font-mono text-xs">PATCH /users/updateUser/:id</code>；帳號不可變更。
+      對應 API：<code class="font-mono text-xs">PATCH /users/:id</code>；帳號不可變更。
     </p>
     <div v-if="pageLoading" class="text-muted-foreground text-sm">載入中…</div>
     <form

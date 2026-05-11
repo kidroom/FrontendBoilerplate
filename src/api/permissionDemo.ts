@@ -3,13 +3,20 @@ import {
   createUser,
   deleteRole,
   deleteUser,
+  getRoleFunctions,
   getRoles,
   getUsers,
   updateRole,
+  updateRoleFunctionsStatus,
   updateUser,
 } from '@/api/auth'
 import type { ApiResult } from '@/types/api'
-import type { GetUsersRequest, UpdateRoleRequest, UpdateUserRequest } from '@/types/auth'
+import type {
+  GetUsersRequest,
+  UpdateRoleFunctionsStatusRequest,
+  UpdateRoleRequest,
+  UpdateUserRequest,
+} from '@/types/auth'
 import type { PermissionDemoRole, PermissionDemoUser } from '@/types/permissionDemo'
 
 export async function fetchPermissionDemoRoles(): Promise<PermissionDemoRole[]> {
@@ -79,4 +86,15 @@ export async function updatePermissionDemoUser(id: string, payload: UpdateUserRe
 
 export async function deletePermissionDemoUser(id: string): Promise<ApiResult> {
   return deleteUser(id)
+}
+
+export async function fetchPermissionDemoRoleFunctions(roleId: string) {
+  return getRoleFunctions(roleId)
+}
+
+export async function savePermissionDemoRoleFunctions(
+  roleId: string,
+  payload: UpdateRoleFunctionsStatusRequest,
+): Promise<ApiResult> {
+  return updateRoleFunctionsStatus(roleId, payload)
 }

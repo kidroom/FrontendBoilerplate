@@ -13,5 +13,4 @@ export interface ApiError {
   code: string
   description: string
   message: string
-  type: number
 }

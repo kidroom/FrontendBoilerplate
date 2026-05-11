@@ -71,6 +71,17 @@ export interface FunctionPermissionInfo {
   isEnabled: boolean
 }
 
+/** 角色功能權限編輯用的樹狀節點（由 `buildFunctionPermissionTree` 產生） */
+export interface FunctionPermissionTreeNode {
+  id: string
+  name: string
+  child: FunctionPermissionTreeNode[]
+  isEnabled: boolean
+}
+
+/** 三態核取方塊視覺狀態（僅顯示；點擊後只會送出 boolean） */
+export type CheckboxTriState = 'checked' | 'unchecked' | 'indeterminate'
+
 export interface UpdateRoleFunctionsStatusRequest {
   functions: FunctionStatusUpdate[]
 }

@@ -6,5 +6,5 @@ export const TEMPLATE_DEFAULT_PERMISSIONS = [
   'demo:read',
   'demo:write',
   'demo:delete',
-  'system:permission-demo',
+  'system:permission',
 ] as const

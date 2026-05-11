@@ -6,7 +6,7 @@ export const ROLE_ASSIGNABLE_PAGE_PERMISSIONS = [
   { code: 'demo:read', label: '範例－列表／詳情（頁面）' },
   { code: 'demo:write', label: '範例－新增／編輯／上傳（頁面）' },
   { code: 'demo:delete', label: '範例－刪除（按鈕）' },
-  { code: 'system:permission-demo', label: '系統－權限示範（頁面）' },
+  { code: 'system:permission', label: '系統－權限示範（頁面）' },
 ] as const
 
 export type AssignablePermissionCode = (typeof ROLE_ASSIGNABLE_PAGE_PERMISSIONS)[number]['code']

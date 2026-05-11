@@ -53,7 +53,7 @@ const onSubmit = handleSubmit(async (values) => {
 <template>
   <div>
     <p class="text-muted-foreground mb-6 text-sm">
-      對應 API：<code class="font-mono text-xs">POST /roles/createRole</code>（目前契約僅送出角色名稱）。
+      對應 API：<code class="font-mono text-xs">POST /roles</code>（body：name）。
     </p>
     <form class="border-border bg-card max-w-lg space-y-6 rounded-lg border p-6" @submit.prevent="onSubmit">
       <div class="grid gap-2">
